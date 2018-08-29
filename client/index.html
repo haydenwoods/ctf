@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- FONTS -->
+	<link href="https://fonts.googleapis.com/css?family=Raleway:300,400|Roboto:300,400" rel="stylesheet">
+
+	<!-- STYLES -->
+	<link rel="stylesheet" type="text/css" href="./public/css/styles.css">
+
+	<!-- SCRIPTS -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="./public/js/client.js"></script>
+
+	<title>Capture The Flag</title>
+</head>
+<body>
+
+	<div id="container" class="noselect">
+		<div id="top-line"></div>
+		<div id="menu-container">
+			<h1>CTF</h1>
+			<h2>Capture The Flag</h2>
+			<h3>Created By <a href="haydenwoods.xyz">Hayden Woods</a> © 2018</h3>
+			<h4 id="error"></h4>
+			
+			<div id="menu" class="screen">
+				<form id="form-menu">
+					<input type="text" id="input-username" class="input" autocomplete="off" placeholder="Username..." >
+					<input type="text" id="input-room" class="input" autocomplete="off" placeholder="Room...">
+					<div class="button-container">
+						<button id="button-create" class="button">Create</button>
+						<button id="button-join" class="button">Join</button>
+					</div>
+					<div class="clearfix"></div>
+				</form>
+			</div>
+
+			<div id="room" class="screen">
+				<p id="player-count"></p>
+				<ul id="players">
+					<div class="clearfix"></div>
+				</ul>	
+				<form id="form-room">
+					<div class="button-container">
+						<button id="button-leave" class="button">Leave</button>
+						<button id="button-start" class="button">Start</button>
+						<div class="clearfix"></div>
+					</div>
+				</form>
+			</div>
+
+		</div>
+	</div>
+
+	<div id="game" class="screen">
+		<canvas id="canvas-game"></canvas>
+	</div>
+</body>
+</html>
