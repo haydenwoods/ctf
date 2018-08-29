@@ -114,6 +114,10 @@ a {
     min-height: 100vh;
 }
 
+#game, #room {
+	display: none;
+}
+
 #menu-container {
 	width: 300px;
 }
@@ -255,7 +259,6 @@ a {
 #room #players li:hover {
 	opacity: 1;
 }
-
 
 
 
