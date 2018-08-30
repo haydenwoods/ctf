@@ -199,8 +199,25 @@ $(document).ready(function() {
 		ctx.fillRect(canvas.width-zoneWidth,0,zoneWidth,canvas.height);
 
     	for (var i = 0; i < users.length; i++) {
-    		ctx.fillStyle = "#ff6666";
+    		if (users[i].player.team == "Red") {
+    			if (users[i].id == socket.id) {
+    				ctx.fillStyle = "#ff1c1c";
+    			} else {
+    				ctx.fillStyle = "#ff6666";
+    			}
+    		} else if (users[i].player.team == "Blue") {
+    			if (users[i].id == socket.id) {
+    				ctx.fillStyle = "#166df9";
+    			} else {
+    				ctx.fillStyle = "#66a0ff";
+    			}
+    		}
     		ctx.fillRect(users[i].player.x * ratio, users[i].player.y * ratio, playerWidth, playerHeight);
+
+    		if (users[i].player.flag == true) {
+    			ctx.fillStyle = "#fff";
+    			ctx.fillRect((users[i].player.x*ratio)+playerHeight/4, (users[i].player.y*ratio)+playerWidth/4, playerHeight/2,playerWidth/2);
+    		}
     	}
 
     	var fontSize = gameData.fontSize * ratio;
@@ -212,4 +229,3 @@ $(document).ready(function() {
 		ctx.fillText("  " + gameData.redScore, canvas.width/2, 80 * ratio);
     });    
 });
-

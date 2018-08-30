@@ -10,9 +10,9 @@ function getRandomInt(min, max) {
 }
 
 function updateLog() {
-	clear();
-	console.log(users);
-	console.log(rooms);
+	//clear();
+	//console.log(users);
+	//console.log(rooms);
 }
 
 
@@ -64,13 +64,13 @@ class User {
 class Player {
 	constructor() {
 		this.team = null;
-		this.flag = null;
+		this.flag = false;
 		this.zone = null;
-		this.alive = null;
+		this.alive = true;
 
 		this.x = 0; this.y = 0;
 		this.vx = 0; this.vy = 0;
-		this.speed = 0.08;
+		this.speed = 0.88;
 		this.friction = 0.9;
 
 		this.left = null; this.right = null;
@@ -89,21 +89,21 @@ class Player {
 		this.applyFriction();
 	}
 
-	checkCanvasCollisions(deltaTime, game) {
+	checkCanvasCollisions(game) {
 		if (this.x < 0)
-			this.vx = this.speed * deltaTime * game.wallBounce; 
-		if (this.x > game.canvasWidth-game.playerWidth)
-			this.vx = -this.speed * deltaTime * game.wallBounce;
+			this.vx = this.speed * game.wallBounce; 
+		if (this.x > game.optimalWidth-game.playerWidth)
+			this.vx = -this.speed * game.wallBounce;
 		if (this.y < 0)
-			this.vy = this.speed * deltaTime * game.wallBounce;
-		if (this.y > game.canvasHeight-game.playerHeight)
-			this.vy = -this.speed * deltaTime * game.wallBounce;
+			this.vy = this.speed * game.wallBounce;
+		if (this.y > game.optimalHeight-game.playerHeight)
+			this.vy = -this.speed * game.wallBounce;
 	}
 
 	checkZone(game) {
-		if (this.x > game.canvasWidth - game.zoneWidth - game.playerWidth/2) {
+		if (this.x > game.optimalWidth - game.zoneWidth - game.playerWidth/2) {
 			this.zone = "RedZone";
-		} else if (this.x > game.canvasWidth / 2) {
+		} else if (this.x > game.optimalWidth / 2) {
 			this.zone = "RedSide";
 		} else if (this.x > game.zoneWidth - game.playerWidth/2) {
 			this.zone = "BlueSide";
@@ -111,6 +111,134 @@ class Player {
 			this.zone = "BlueZone";
 		} else {
 			console.log("ERROR");
+		}
+	}
+
+	checkFlag(game, room) {
+		if (this.flag == false) {
+			if (this.zone.includes("Zone")) {
+				if (this.team == "Red") {
+					if (this.zone.includes("Blue")) {
+						if (game.blueFlag == true) {
+							game.blueFlag = false;
+							this.flag = true;
+						}
+					}
+				} else if (this.team == "Blue") {
+					if (this.zone.includes("Red")) {
+						if (game.redFlag == true) {
+							game.redFlag = false;
+							this.flag = true;
+						}
+					}
+				}
+			}
+		} else if (this.flag == true) {
+			if (this.zone.includes("Zone")) {
+				if (this.team == "Red") {
+					if (this.zone.includes("Red")) {
+						game.incrementScore("Red");
+						game.resetGame();
+						room.resetPlayers();
+					}
+				} else if (this.team == "Blue") {
+					if (this.zone.includes("Blue")) {
+						game.incrementScore("Blue");
+						game.resetGame();
+						room.resetPlayers();
+					}
+				}
+			}
+		}
+	}
+
+	checkPlayerCollisions(game, room) {
+		for (var i = 0; i < room.users.length; i++) {
+			var p2 = room.users[i].player;
+			console.log(p2);
+			console.log(this);
+			if (!this.zone.includes("Zone") || !p2.zone.includes("Zone")) {
+				if (this.team != p2.team) {
+					if (this.x < p2.x + game.playerWidth  && this.x + game.playerWidth  > p2.x && this.y < p2.y + game.playerHeight && this.y + game.playerHeight > p2.y) {
+						if (this.flag == false && p2.flag == true) {
+							p2.killPlayer(game);
+							setTimeout(function() { p2.respawnPlayer(game) }, respawnTime);
+						} else if (this.flag == true && p2.flag == false) {
+							this.killPlayer(game);
+							setTimeout(function() { this.respawnPlayer(game) }, respawnTime);
+						}
+
+						if (this.team + "Side" == this.zone) {
+							p2.killPlayer(game);
+							setTimeout(function() { p2.respawnPlayer(game) }, respawnTime);
+						} else if (p2.team + "Side" == p2.zone) {
+							this.killPlayer(game);
+							setTimeout(function() { this.respawnPlayer(game) }, respawnTime);
+						}
+					}
+				} 
+			}
+
+			// if (p2.id != this.id) {
+			// 	if (this.alive && p2.alive) {
+			// 		if (this.x < p2.x + game.playerWidth  && this.x + game.playerWidth  > p2.x && this.y < p2.y + game.playerHeight && this.y + game.playerHeight > p2.y) {
+			// 			var oneVX = this.vx;
+			// 			var oneVY = this.vy;
+			// 			var twoVX = p2.vx;
+			// 			var twoVY = p2.vx;
+			// 			var oneRatio = oneVX / oneVY;
+			// 			var twoRatio = twoVX / twoVY;
+
+
+			// 			this.vx = -oneVX * game.playerBounce;
+			// 			this.vy = -oneVY * game.playerBounce;
+
+			// 			if (Math.round(twoVX) + Math.round(twoVY) == 0) {
+			// 				p2.vx = oneVX * game.playerBounce;
+			// 				p2.vy = oneVY * game.playerBounce;
+			// 			} else {
+			// 				p2.vx = -twoVX * game.playerBounce;
+			// 				p2.vy = -twoVY * game.playerBounce;
+			// 			}
+						
+			// 			this.updatePosition();
+			// 			p2.updatePosition();
+			// 		}
+			// 	}
+			// }
+		}
+	}
+
+	respawnPlayer(game) {
+		if (this.alive == false) {
+			if (this.team == "Red") {
+				this.x = game.redSpawn.x;
+				this.y = game.redSpawn.y;
+			} else if (this.team == "Blue") {
+				this.x = game.blueSpawn.x;
+				this.y = game.blueSpawn.y;
+			}
+			this.alive = true;
+		}
+	}
+
+	killPlayer(game) {
+		if (this.alive == true) {
+			if (this.flag == true) {
+				if (this.team == "Red") {
+					game.blueFlag = true;
+				} else if (this.team == "Blue") {
+					game.redFlag = true;
+				}
+			}
+			this.flag = false;
+			this.right = false;
+			this.left = false;
+			this.up = false;
+			this.down = false;
+			this.vx = 0;
+			this.vy = 0;
+			this.alive = false;
 		}
 	}
 }
@@ -138,6 +266,14 @@ class Room {
 
 		this.game = null;
 	}
+
+	resetPlayers() {
+		for (var i = 0; i < this.users.length; i++) {
+			this.users[i].player.killPlayer(this.game);
+			console.log(users);
+			setTimeout(function() { console.log(i); this.users[i].player.respawnPlayer(this.game) }, this.game.resetTime);
+		}
+	}
 }
 
 class Game {
@@ -149,9 +285,35 @@ class Game {
 		this.playerWidth = 40;
 		this.fontSize = 80;
 		this.wallBounce = 10;
+		this.playerBounce = 10;
+
+		this.resetTime = 2000;
+		this.respawnTime = 1200;
 
 		this.redScore = 0;
 		this.blueScore = 0;
+		this.redFlag = true;
+		this.blueFlag = true;
+
+		this.redSpawn = {
+			x: (this.optimalWidth/8)*7,
+			y: this.optimalHeight/2,
+		}
+		this.blueSpawn = {
+			x: (this.optimalWidth/8)*1,
+			y: this.optimalHeight/2,
+		}
+	}
+
+	incrementScore(team) {
+		if (team == "Blue") {
+			this.blueScore++;
+		} else if (team == "Red") {
+			this.redScore++;
+		}
+	}
+
+	resetGame() {
 		this.redFlag = true;
 		this.blueFlag = true;
 	}
@@ -417,14 +579,33 @@ io.sockets.on("connection", function(socket) {
 		}
 
 		room.isPlaying = true;
-
 		room.game = new Game();
+
+		var redPlayers = 0;
+		var bluePlayers = 0;
 
 		for (var i = 0; i < room.users.length; i++) {
 			room.users[i].player = new Player();
+
+			if (redPlayers > bluePlayers) {
+				room.users[i].player.team = "Blue";
+			} else if (redPlayers < bluePlayers) {
+				room.users[i].player.team = "Red";
+			} else if (redPlayers == bluePlayers) {
+				var random = getRandomInt(0,1);
+				if (random == 1) {
+					room.users[i].player.team = "Red";
+					redPlayers++;
+				} else if (random == 0) {
+					room.users[i].player.team = "Blue";
+					bluePlayers++;
+				}	
+			}
 		}
 
 		io.to(room.id).emit("setupGame");
+
+		room.resetPlayers();
 	});
 
 
@@ -437,76 +618,82 @@ io.sockets.on("connection", function(socket) {
   \____/|_|    |_____/_/    \_\_|  |______|
                                            
  */
-    
+
 
     var room = null;
-    var lastUpdate = Date.now();
+
 	setInterval(function() {
-		var now = Date.now();
-		var deltaTime = now - lastUpdate;
-		if (room != null) {
-			//If the current room object's ID is not the same as the users roomID, refind the room
-			if (room.id != user.roomID) {
-				for (var i = 0; i < rooms.length; i++) {
-					if (rooms[i].id == user.roomID) {
-						room = rooms[i];
+		if (user.player != null) {
+			if (room != null) {
+				if (room.isPlaying == true) {
+					//INPUT KEYS
+					if (user.player != null) {
+						socket.on("moveKeys", function(moveKeys) {
+							user.player.left = moveKeys.left;
+							user.player.right = moveKeys.right;
+							user.player.up = moveKeys.up;
+							user.player.down = moveKeys.down;
+						});
+					}	
+
+					//MAIN PACKET
+					var users = [];
+
+					for (var i = 0; i < room.users.length; i++) {
+						if (room.users[i].player.alive == true) {
+							var speed = room.users[i].player.speed;
+
+							if (room.users[i].player.flag == true) {
+								speed *= 0.9;
+							}
+
+							if (room.users[i].player.right) {
+								room.users[i].player.vx += speed;
+							}
+							if (room.users[i].player.left) {
+								room.users[i].player.vx -= speed; 
+							}
+							if (room.users[i].player.up) {
+								room.users[i].player.vy -= speed;
+							}
+							if (room.users[i].player.down) {
+								room.users[i].player.vy += speed;
+							}
+
+							room.users[i].player.updatePosition();
+							room.users[i].player.checkZone(room.game);
+							room.users[i].player.checkFlag(room.game, room);
+
+							users.push(room.users[i]);
+						}
 					}
+
+					//These can only be done after all the other checks for all other players
+					for (var i = 0; i < room.users.length; i++) {
+						if (room.users[i].player.alive == true) {
+							room.users[i].player.checkPlayerCollisions(room.game, room);
+							room.users[i].player.checkCanvasCollisions(room.game);
+						}
+					}
+
+					//GAME DATA
+					var game = room.game;
+
+					io.to(room.id).emit("update", users, game);
+
+					//updateLog();
+				} else if (room.isPlaying == false) {
+					room = null;
 				}
-			}
-
-			// MAIN GAME LOOP
-			if (room.isPlaying == true) {
-				//INPUT KEYS
-				if (user.player != null) {
-					socket.on("moveKeys", function(moveKeys) {
-						user.player.left = moveKeys.left;
-						user.player.right = moveKeys.right;
-						user.player.up = moveKeys.up;
-						user.player.down = moveKeys.down;
-					});
-				}	
-
-				//MAIN PACKET
-				var users = [];
-
-				for (var i = 0; i < room.users.length; i++) {
-					var speed = room.users[i].player.speed;
-
-					if (room.users[i].player.right) {
-						room.users[i].player.vx += speed * deltaTime;
+			} else {
+				if (rooms.length >= 1) { 
+					for (var i = 0; i < rooms.length; i++) {
+						if (rooms[i].id == user.roomID ) {
+							room = rooms[i];
+						}
 					}
-					if (room.users[i].player.left) {
-						room.users[i].player.vx -= speed * deltaTime; 
-					}
-					if (room.users[i].player.up) {
-						room.users[i].player.vy -= speed * deltaTime;
-					}
-					if (room.users[i].player.down) {
-						room.users[i].player.vy += speed * deltaTime;
-					}
-
-					room.users[i].player.updatePosition();
-					room.users[i].player.checkCanvasCollisions(deltaTime, room.game);
-
-					room.users[i].player.checkZone(room.game);
-
-					users.push(room.users[i]);
-				}
-
-				var gameData = room.game;
-
-				io.to(room.id).emit("update", users, gameData);
-
-				//LEAVE AT END
-				updateLog();
-			}
-		} else {
-			for (var i = 0; i < rooms.length; i++) {
-				if (rooms[i].id == user.roomID) {
-					room = rooms[i];
 				}
 			}
 		}
-		lastUpdate = now;
 	},1000/100);
 });

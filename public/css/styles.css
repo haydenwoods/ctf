@@ -117,6 +117,10 @@ a {
     min-height: 100vh;
 }
 
+#game, #room {
+	display: none;
+}
+
 #menu-container {
 	width: 300px;
 }
