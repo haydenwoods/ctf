@@ -157,7 +157,11 @@ $(document).ready(function() {
     });
 
     socket.on("update", function(users, gameData) {
-    	var ratio = (window.innerWidth-8) / gameData.optimalWidth;
+    	var ratioWidth = (window.innerWidth-8) / gameData.optimalWidth;
+    	var ratioHeight = (window.innerHeight-8) / gameData.optimalHeight;
+
+    	var ratio = Math.min(ratioHeight,ratioWidth);
+
     	canvas.width = gameData.optimalWidth * ratio;
     	canvas.height = gameData.optimalHeight * ratio;
     	var zoneWidth = gameData.zoneWidth * ratio;
