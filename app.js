@@ -10,9 +10,9 @@ function getRandomInt(min, max) {
 }
 
 function updateLog() {
-	clear();
-	console.log(users);
-	console.log(rooms);
+	//clear();
+	//console.log(users);
+	//console.log(rooms);
 }
 
 
@@ -155,8 +155,6 @@ class Player {
 	checkPlayerCollisions(game, room) {
 		for (var i = 0; i < room.users.length; i++) {
 			var p2 = room.users[i].player;
-			console.log(p2);
-			console.log(this);
 			if (!this.zone.includes("Zone") || !p2.zone.includes("Zone")) {
 				if (this.team != p2.team) {
 					if (this.x < p2.x + game.playerWidth  && this.x + game.playerWidth  > p2.x && this.y < p2.y + game.playerHeight && this.y + game.playerHeight > p2.y) {
@@ -268,10 +266,19 @@ class Room {
 	}
 
 	resetPlayers() {
+
+		//WEIRD ASS BEHAVIOUR PLZ FIX
+		
+		console.log(this.users);
 		for (var i = 0; i < this.users.length; i++) {
 			this.users[i].player.killPlayer(this.game);
-			console.log(users);
-			setTimeout(function() { console.log(i); this.users[i].player.respawnPlayer(this.game) }, this.game.resetTime);
+
+			var that = this;
+			setTimeout(function() { 
+					that.users[i-1].player.respawnPlayer(that.game);
+				}, 
+				that.game.resetTime
+			);
 		}
 	}
 }
