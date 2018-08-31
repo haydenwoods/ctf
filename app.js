@@ -10,9 +10,9 @@ function getRandomInt(min, max) {
 }
 
 function updateLog() {
-	//clear();
-	//console.log(users);
-	//console.log(rooms);
+	clear();
+	console.log(users);
+	console.log(rooms);
 }
 
 
@@ -697,3 +697,4 @@ io.sockets.on("connection", function(socket) {
 		}
 	},1000/100);
 });
+
