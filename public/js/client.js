@@ -156,6 +156,18 @@ $(document).ready(function() {
     	$("#container").hide();
     });
 
+    
+/*
+  _    _ _____  _____       _______ ______ 
+ | |  | |  __ \|  __ \   /\|__   __|  ____|
+ | |  | | |__) | |  | | /  \  | |  | |__   
+ | |  | |  ___/| |  | |/ /\ \ | |  |  __|  
+ | |__| | |    | |__| / ____ \| |  | |____ 
+  \____/|_|    |_____/_/    \_\_|  |______|
+                                           
+*/
+
+
     socket.on("update", function(users, gameData) {
     	var ratioWidth = (window.innerWidth-8) / gameData.optimalWidth;
     	var ratioHeight = (window.innerHeight-8) / gameData.optimalHeight;
@@ -174,17 +186,19 @@ $(document).ready(function() {
 
     	//Middle Line
 		ctx.strokeStyle="#4cd137";
-		ctx.setLineDash([30, 25]);
+		ctx.setLineDash([30*ratio, 25*ratio]);
 		ctx.lineWidth=5*ratio;
 		ctx.beginPath();
 		ctx.moveTo(canvas.width/2,0);
 		ctx.lineTo(canvas.width/2,canvas.height);
 		ctx.stroke();
 
-		//Blue zone
+		//Zones
 		ctx.fillStyle="rgba(76,209,55,0.4)";
 		ctx.setLineDash([]);
 		ctx.lineWidth=5*ratio;
+
+		//Blue zone
 		ctx.beginPath();
 		ctx.moveTo(zoneWidth,0);
 		ctx.lineTo(zoneWidth,canvas.height);
@@ -199,25 +213,27 @@ $(document).ready(function() {
 		ctx.fillRect(canvas.width-zoneWidth,0,zoneWidth,canvas.height);
 
     	for (var i = 0; i < users.length; i++) {
-    		if (users[i].player.team == "Red") {
-    			if (users[i].id == socket.id) {
-    				ctx.fillStyle = "#ff1c1c";
-    			} else {
-    				ctx.fillStyle = "#ff6666";
-    			}
-    		} else if (users[i].player.team == "Blue") {
-    			if (users[i].id == socket.id) {
-    				ctx.fillStyle = "#166df9";
-    			} else {
-    				ctx.fillStyle = "#66a0ff";
-    			}
-    		}
-    		ctx.fillRect(users[i].player.x * ratio, users[i].player.y * ratio, playerWidth, playerHeight);
+    		if (users[i].player.alive == true) {
+	    		if (users[i].player.team == "Red") {
+	    			if (users[i].id == socket.id) {
+	    				ctx.fillStyle = "#ff1c1c";
+	    			} else {
+	    				ctx.fillStyle = "#ff6666";
+	    			}
+	    		} else if (users[i].player.team == "Blue") {
+	    			if (users[i].id == socket.id) {
+	    				ctx.fillStyle = "#166df9";
+	    			} else {
+	    				ctx.fillStyle = "#66a0ff";
+	    			}
+	    		}
+	    		ctx.fillRect(users[i].player.x * ratio, users[i].player.y * ratio, playerWidth, playerHeight);
 
-    		if (users[i].player.flag == true) {
-    			ctx.fillStyle = "#fff";
-    			ctx.fillRect((users[i].player.x*ratio)+playerHeight/4, (users[i].player.y*ratio)+playerWidth/4, playerHeight/2,playerWidth/2);
-    		}
+	    		if (users[i].player.flag == true) {
+	    			ctx.fillStyle = "#fff";
+	    			ctx.fillRect((users[i].player.x*ratio)+playerHeight/4, (users[i].player.y*ratio)+playerWidth/4, playerHeight/2,playerWidth/2);
+	    		}
+	    	}
     	}
 
     	var fontSize = gameData.fontSize * ratio;

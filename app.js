@@ -3,7 +3,6 @@ function clear() {
 		console.log("\n")
 	}
 }
-clear();
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -66,7 +65,7 @@ class Player {
 		this.team = null;
 		this.flag = false;
 		this.zone = null;
-		this.alive = true;
+		this.alive = false;
 
 		this.x = 0; this.y = 0;
 		this.vx = 0; this.vy = 0;
@@ -160,18 +159,18 @@ class Player {
 					if (this.x < p2.x + game.playerWidth  && this.x + game.playerWidth  > p2.x && this.y < p2.y + game.playerHeight && this.y + game.playerHeight > p2.y) {
 						if (this.flag == false && p2.flag == true) {
 							p2.killPlayer(game);
-							setTimeout(function() { p2.respawnPlayer(game) }, respawnTime);
+							p2.respawnPlayer(game);
 						} else if (this.flag == true && p2.flag == false) {
 							this.killPlayer(game);
-							setTimeout(function() { this.respawnPlayer(game) }, respawnTime);
+							this.respawnPlayer(game);
 						}
 
 						if (this.team + "Side" == this.zone) {
 							p2.killPlayer(game);
-							setTimeout(function() { p2.respawnPlayer(game) }, respawnTime);
+							p2.respawnPlayer(game);
 						} else if (p2.team + "Side" == p2.zone) {
 							this.killPlayer(game);
-							setTimeout(function() { this.respawnPlayer(game) }, respawnTime);
+							this.respawnPlayer(game);
 						}
 					}
 				} 
@@ -208,36 +207,32 @@ class Player {
 	}
 
 	respawnPlayer(game) {
-		if (this.alive == false) {
-			if (this.team == "Red") {
-				this.x = game.redSpawn.x;
-				this.y = game.redSpawn.y;
-			} else if (this.team == "Blue") {
-				this.x = game.blueSpawn.x;
-				this.y = game.blueSpawn.y;
-			}
-			this.alive = true;
+		if (this.team == "Red") {
+			this.x = game.redSpawn.x;
+			this.y = game.redSpawn.y;
+		} else if (this.team == "Blue") {
+			this.x = game.blueSpawn.x;
+			this.y = game.blueSpawn.y;
 		}
+		this.alive = true;
 	}
 
-	killPlayer(game) {
-		if (this.alive == true) {
-			if (this.flag == true) {
-				if (this.team == "Red") {
-					game.blueFlag = true;
-				} else if (this.team == "Blue") {
-					game.redFlag = true;
-				}
+	killPlayer(game) {		
+		if (this.flag == true) {
+			if (this.team == "Red") {
+				game.blueFlag = true;
+			} else if (this.team == "Blue") {
+				game.redFlag = true;
 			}
-			this.flag = false;
-			this.right = false;
-			this.left = false;
-			this.up = false;
-			this.down = false;
-			this.vx = 0;
-			this.vy = 0;
-			this.alive = false;
 		}
+		this.flag = false;
+		this.right = false;
+		this.left = false;
+		this.up = false;
+		this.down = false;
+		this.vx = 0;
+		this.vy = 0;
+		this.alive = false;
 	}
 }
 
@@ -258,7 +253,7 @@ class Room {
 		this.id = id;
 
 		this.users = [];
-		this.admin = ""; //Player ID of admin user
+		this.admin = null; //Admin player
 
 		this.isPlaying = false;
 
@@ -266,19 +261,9 @@ class Room {
 	}
 
 	resetPlayers() {
-
-		//WEIRD ASS BEHAVIOUR PLZ FIX
-		
-		console.log(this.users);
 		for (var i = 0; i < this.users.length; i++) {
 			this.users[i].player.killPlayer(this.game);
-
-			var that = this;
-			setTimeout(function() { 
-					that.users[i-1].player.respawnPlayer(that.game);
-				}, 
-				that.game.resetTime
-			);
+			this.users[i].player.respawnPlayer(this.game);
 		}
 	}
 }
@@ -615,6 +600,18 @@ io.sockets.on("connection", function(socket) {
 		room.resetPlayers();
 	});
 
+	socket.on("moveKeys", function(moveKeys) {
+		if (user.player != null) {
+			if (room != null) {
+				if (room.isPlaying == true) {
+					user.player.left = moveKeys.left;
+					user.player.right = moveKeys.right;
+					user.player.up = moveKeys.up;
+					user.player.down = moveKeys.down;
+				}
+			}
+		}
+	});
 
 /*
   _    _ _____  _____       _______ ______ 
@@ -633,62 +630,44 @@ io.sockets.on("connection", function(socket) {
 		if (user.player != null) {
 			if (room != null) {
 				if (room.isPlaying == true) {
-					//INPUT KEYS
-					if (user.player != null) {
-						socket.on("moveKeys", function(moveKeys) {
-							user.player.left = moveKeys.left;
-							user.player.right = moveKeys.right;
-							user.player.up = moveKeys.up;
-							user.player.down = moveKeys.down;
-						});
-					}	
+					//INPUT KEYS	
 
-					//MAIN PACKET
-					var users = [];
+					var speed = user.player.speed;
 
-					for (var i = 0; i < room.users.length; i++) {
-						if (room.users[i].player.alive == true) {
-							var speed = room.users[i].player.speed;
+					if (user.player.right) {
+						user.player.vx += speed;
+					}
+					if (user.player.left) {
+						user.player.vx -= speed; 
+					}
+					if (user.player.up) {
+						user.player.vy -= speed;
+					}
+					if (user.player.down) {
+						user.player.vy += speed;
+					}
 
-							if (room.users[i].player.flag == true) {
-								speed *= 0.9;
-							}
+					if (user.id == room.admin.id) {
+						//PLAYER DATA
+						var users = [];
 
-							if (room.users[i].player.right) {
-								room.users[i].player.vx += speed;
-							}
-							if (room.users[i].player.left) {
-								room.users[i].player.vx -= speed; 
-							}
-							if (room.users[i].player.up) {
-								room.users[i].player.vy -= speed;
-							}
-							if (room.users[i].player.down) {
-								room.users[i].player.vy += speed;
-							}
-
+						for (var i = 0; i < room.users.length; i++) {
 							room.users[i].player.updatePosition();
 							room.users[i].player.checkZone(room.game);
 							room.users[i].player.checkFlag(room.game, room);
+							room.users[i].player.checkPlayerCollisions(room.game, room);
+							room.users[i].player.checkCanvasCollisions(room.game);
 
 							users.push(room.users[i]);
 						}
+
+						updateLog();
+
+						//GAME DATA
+						var game = room.game;
+
+						io.to(room.id).emit("update", users, game);
 					}
-
-					//These can only be done after all the other checks for all other players
-					for (var i = 0; i < room.users.length; i++) {
-						if (room.users[i].player.alive == true) {
-							room.users[i].player.checkPlayerCollisions(room.game, room);
-							room.users[i].player.checkCanvasCollisions(room.game);
-						}
-					}
-
-					//GAME DATA
-					var game = room.game;
-
-					io.to(room.id).emit("update", users, game);
-
-					//updateLog();
 				} else if (room.isPlaying == false) {
 					room = null;
 				}
@@ -704,4 +683,3 @@ io.sockets.on("connection", function(socket) {
 		}
 	},1000/100);
 });
-
