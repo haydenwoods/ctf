@@ -159,18 +159,45 @@ class Player {
 					if (this.x < p2.x + game.playerWidth  && this.x + game.playerWidth  > p2.x && this.y < p2.y + game.playerHeight && this.y + game.playerHeight > p2.y) {
 						if (this.flag == false && p2.flag == true) {
 							p2.killPlayer(game);
-							p2.respawnPlayer(game);
+
+							var that = p2;
+							setTimeout(
+								function() {	
+									that.respawnPlayer(game);
+								}
+							), game.respawnTime, that;
 						} else if (this.flag == true && p2.flag == false) {
 							this.killPlayer(game);
-							this.respawnPlayer(game);
+							
+							var that = this;
+							setTimeout(
+								function() {	
+									that.respawnPlayer(game);
+								}
+							), game.respawnTime, that;
 						}
 
 						if (this.team + "Side" == this.zone) {
 							p2.killPlayer(game);
-							p2.respawnPlayer(game);
+
+							var that = p2;
+							setTimeout(
+								function() {	
+									that.respawnPlayer(game);
+								}
+							), game.respawnTime, that;
 						} else if (p2.team + "Side" == p2.zone) {
 							this.killPlayer(game);
-							this.respawnPlayer(game);
+							
+							var that = this;
+							console.log(game.respawnTime);
+							setTimeout(
+								function() {
+									console.log(that);	
+									that.respawnPlayer(game);
+									console.log(that);
+								}
+							), game.respawnTime, that;
 						}
 					}
 				} 
@@ -276,11 +303,11 @@ class Game {
 		this.playerHeight = 40;
 		this.playerWidth = 40;
 		this.fontSize = 80;
-		this.wallBounce = 10;
+		this.wallBounce = 20;
 		this.playerBounce = 10;
 
 		this.resetTime = 2000;
-		this.respawnTime = 1200;
+		this.respawnTime = 5000;
 
 		this.redScore = 0;
 		this.blueScore = 0;
@@ -435,9 +462,14 @@ io.sockets.on("connection", function(socket) {
 				if (rooms[i].id == roomID) {
 					if (rooms[i].isPlaying) {
 						err = "Room is already playing!";
-					} else {
-						err = "";
 					}
+
+					for (var x = 0; x < rooms[i].users.length; x++) {
+						if (rooms[i].users[x].username == username) {
+							err = "Username already exists in room!";
+						}
+					}
+
 					break;
 				} else {
 					err = "A room doesn't exist with this name!";
@@ -581,8 +613,10 @@ io.sockets.on("connection", function(socket) {
 
 			if (redPlayers > bluePlayers) {
 				room.users[i].player.team = "Blue";
+				bluePlayers++;
 			} else if (redPlayers < bluePlayers) {
 				room.users[i].player.team = "Red";
+				redPlayers++;
 			} else if (redPlayers == bluePlayers) {
 				var random = getRandomInt(0,1);
 				if (random == 1) {
@@ -632,19 +666,21 @@ io.sockets.on("connection", function(socket) {
 				if (room.isPlaying == true) {
 					//INPUT KEYS	
 
-					var speed = user.player.speed;
+					if (user.player.alive == true) {
+						var speed = user.player.speed;
 
-					if (user.player.right) {
-						user.player.vx += speed;
-					}
-					if (user.player.left) {
-						user.player.vx -= speed; 
-					}
-					if (user.player.up) {
-						user.player.vy -= speed;
-					}
-					if (user.player.down) {
-						user.player.vy += speed;
+						if (user.player.right) {
+							user.player.vx += speed;
+						}
+						if (user.player.left) {
+							user.player.vx -= speed; 
+						}
+						if (user.player.up) {
+							user.player.vy -= speed;
+						}
+						if (user.player.down) {
+							user.player.vy += speed;
+						}
 					}
 
 					if (user.id == room.admin.id) {
@@ -652,13 +688,15 @@ io.sockets.on("connection", function(socket) {
 						var users = [];
 
 						for (var i = 0; i < room.users.length; i++) {
-							room.users[i].player.updatePosition();
-							room.users[i].player.checkZone(room.game);
-							room.users[i].player.checkFlag(room.game, room);
-							room.users[i].player.checkPlayerCollisions(room.game, room);
-							room.users[i].player.checkCanvasCollisions(room.game);
+							if (room.users[i].player.alive == true) {
+								room.users[i].player.updatePosition();
+								room.users[i].player.checkZone(room.game);
+								room.users[i].player.checkFlag(room.game, room);
+								room.users[i].player.checkPlayerCollisions(room.game, room);
+								room.users[i].player.checkCanvasCollisions(room.game);
 
-							users.push(room.users[i]);
+								users.push(room.users[i]);
+							}
 						}
 
 						updateLog();

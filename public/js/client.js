@@ -213,6 +213,7 @@ $(document).ready(function() {
 		ctx.fillRect(canvas.width-zoneWidth,0,zoneWidth,canvas.height);
 
     	for (var i = 0; i < users.length; i++) {
+    		console.log(users[i].player.alive);
     		if (users[i].player.alive == true) {
 	    		if (users[i].player.team == "Red") {
 	    			if (users[i].id == socket.id) {
