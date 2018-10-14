@@ -151,9 +151,28 @@ $(document).ready(function() {
     	}
     });
 
-    socket.on("setupGame", function() {
+    var ratio;
+    var zoneWidth;
+    var playerHeight;
+    var playerWidth;
+    var fontSize;
+
+    socket.on("setupGame", function(gameData) {
     	toggleScreen("game");
     	$("#container").hide();
+
+    	var ratioWidth = (window.innerWidth-8) / gameData.optimalWidth;
+    	var ratioHeight = (window.innerHeight-8) / gameData.optimalHeight;
+
+    	ratio = Math.min(ratioHeight,ratioWidth);
+
+    	canvas.width = gameData.optimalWidth * ratio;
+    	canvas.height = gameData.optimalHeight * ratio;
+    	zoneWidth = gameData.zoneWidth * ratio;
+    	playerHeight = gameData.playerHeight * ratio;
+    	playerWidth = gameData.playerWidth * ratio;
+
+    	fontSize = gameData.fontSize * ratio;
     });
 
     
@@ -168,18 +187,7 @@ $(document).ready(function() {
 */
 
 
-    socket.on("update", function(users, gameData) {
-    	var ratioWidth = (window.innerWidth-8) / gameData.optimalWidth;
-    	var ratioHeight = (window.innerHeight-8) / gameData.optimalHeight;
-
-    	var ratio = Math.min(ratioHeight,ratioWidth);
-
-    	canvas.width = gameData.optimalWidth * ratio;
-    	canvas.height = gameData.optimalHeight * ratio;
-    	var zoneWidth = gameData.zoneWidth * ratio;
-    	var playerHeight = gameData.playerHeight * ratio;
-    	var playerWidth = gameData.playerWidth * ratio;
-
+    socket.on("update", function(users, blueScore, redScore) {
     	//Background
     	ctx.fillStyle = "#000";
     	ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -237,12 +245,11 @@ $(document).ready(function() {
 	    	}
     	}
 
-    	var fontSize = gameData.fontSize * ratio;
     	ctx.font = fontSize + "px sans-serif";
 		ctx.fillStyle = "#4cd137";
 		ctx.textAlign = "right"; 
-		ctx.fillText(gameData.blueScore + "  ", canvas.width/2, 80 * ratio);
+		ctx.fillText(blueScore + "  ", canvas.width/2, 80 * ratio);
 		ctx.textAlign = "left";
-		ctx.fillText("  " + gameData.redScore, canvas.width/2, 80 * ratio);
+		ctx.fillText("  " + redScore, canvas.width/2, 80 * ratio);
     });    
 });

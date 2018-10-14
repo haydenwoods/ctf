@@ -8,12 +8,6 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function updateLog() {
-	//clear();
-	//console.log(users);
-	//console.log(rooms);
-}
-
 
 /*
   ________   _______  _____  ______  _____ _____ 
@@ -66,6 +60,7 @@ class Player {
 		this.flag = false;
 		this.zone = null;
 		this.alive = false;
+		this.respawning = false;
 
 		this.x = 0; this.y = 0;
 		this.vx = 0; this.vy = 0;
@@ -154,94 +149,57 @@ class Player {
 	checkPlayerCollisions(game, room) {
 		for (var i = 0; i < room.users.length; i++) {
 			var p2 = room.users[i].player;
-			if (!this.zone.includes("Zone") || !p2.zone.includes("Zone")) {
-				if (this.team != p2.team) {
-					if (this.x < p2.x + game.playerWidth  && this.x + game.playerWidth  > p2.x && this.y < p2.y + game.playerHeight && this.y + game.playerHeight > p2.y) {
-						if (this.flag == false && p2.flag == true) {
-							p2.killPlayer(game);
+			if (this.respawning == false && p2.respawning == false) {
+				if (!this.zone.includes("Zone") || !p2.zone.includes("Zone")) {
+					if (this.team != p2.team) {
+						if (this.x < p2.x + game.playerWidth  && this.x + game.playerWidth  > p2.x && this.y < p2.y + game.playerHeight && this.y + game.playerHeight > p2.y) {
+							if (this.flag == false && p2.flag == true) {
+								p2.killPlayer(game);
+								var that = p2;
+								setTimeout(p2.respawnPlayer, game.respawnTime, game, that);
+								p2.respawning = true;
+								break;
+							} else if (this.flag == true && p2.flag == false) {
+								this.killPlayer(game);
+								var that = this;
+								setTimeout(this.respawnPlayer, game.respawnTime, game, that);
+								this.respawning = true;
+								break;
+							}
 
-							var that = p2;
-							setTimeout(
-								function() {	
-									that.respawnPlayer(game);
-								}
-							), game.respawnTime, that;
-						} else if (this.flag == true && p2.flag == false) {
-							this.killPlayer(game);
-							
-							var that = this;
-							setTimeout(
-								function() {	
-									that.respawnPlayer(game);
-								}
-							), game.respawnTime, that;
+							if (this.team + "Side" == this.zone) {
+								p2.killPlayer(game);
+								var that = p2;
+								setTimeout(p2.respawnPlayer, game.respawnTime, game, that);
+								p2.respawning = true;
+								break;
+							} else if (p2.team + "Side" == p2.zone) {
+								this.killPlayer(game);
+								var that = this;
+								setTimeout(this.respawnPlayer, game.respawnTime, game, that);
+								this.respawning = true;
+								break;
+							}
 						}
-
-						if (this.team + "Side" == this.zone) {
-							p2.killPlayer(game);
-
-							var that = p2;
-							setTimeout(
-								function() {	
-									that.respawnPlayer(game);
-								}
-							), game.respawnTime, that;
-						} else if (p2.team + "Side" == p2.zone) {
-							this.killPlayer(game);
-							
-							var that = this;
-							console.log(game.respawnTime);
-							setTimeout(
-								function() {
-									console.log(that);	
-									that.respawnPlayer(game);
-									console.log(that);
-								}
-							), game.respawnTime, that;
-						}
-					}
-				} 
+					} 
+				}
 			}
-
-			// if (p2.id != this.id) {
-			// 	if (this.alive && p2.alive) {
-			// 		if (this.x < p2.x + game.playerWidth  && this.x + game.playerWidth  > p2.x && this.y < p2.y + game.playerHeight && this.y + game.playerHeight > p2.y) {
-			// 			var oneVX = this.vx;
-			// 			var oneVY = this.vy;
-			// 			var twoVX = p2.vx;
-			// 			var twoVY = p2.vx;
-			// 			var oneRatio = oneVX / oneVY;
-			// 			var twoRatio = twoVX / twoVY;
-
-
-			// 			this.vx = -oneVX * game.playerBounce;
-			// 			this.vy = -oneVY * game.playerBounce;
-
-			// 			if (Math.round(twoVX) + Math.round(twoVY) == 0) {
-			// 				p2.vx = oneVX * game.playerBounce;
-			// 				p2.vy = oneVY * game.playerBounce;
-			// 			} else {
-			// 				p2.vx = -twoVX * game.playerBounce;
-			// 				p2.vy = -twoVY * game.playerBounce;
-			// 			}
-						
-			// 			this.updatePosition();
-			// 			p2.updatePosition();
-			// 		}
-			// 	}
-			// }
 		}
 	}
 
-	respawnPlayer(game) {
-		if (this.team == "Red") {
-			this.x = game.redSpawn.x;
-			this.y = game.redSpawn.y;
-		} else if (this.team == "Blue") {
-			this.x = game.blueSpawn.x;
-			this.y = game.blueSpawn.y;
+	//Player is passed to the function if it is being respawned on a setTimeout, otherwise it is this
+	//This is because "this" when called from a setTimeout function relates to the setTimeout function and
+	//not the object.
+	respawnPlayer(game, player=this) {
+		if (player.team == "Red") {
+			player.x = game.redSpawn.x;
+			player.y = getRandomInt(0,game.optimalHeight);
+		} else if (player.team == "Blue") {
+			player.x = game.blueSpawn.x;
+			player.y = getRandomInt(0,game.optimalHeight);
 		}
-		this.alive = true;
+		player.alive = true;
+		player.respawning = false;
 	}
 
 	killPlayer(game) {		
@@ -290,7 +248,10 @@ class Room {
 	resetPlayers() {
 		for (var i = 0; i < this.users.length; i++) {
 			this.users[i].player.killPlayer(this.game);
-			this.users[i].player.respawnPlayer(this.game);
+			
+			var that = this.users[i].player;
+			setTimeout(this.users[i].player.respawnPlayer, this.game.resetTime, this.game, that);
+			this.users[i].player.respawning = true;
 		}
 	}
 }
@@ -307,7 +268,7 @@ class Game {
 		this.playerBounce = 10;
 
 		this.resetTime = 2000;
-		this.respawnTime = 5000;
+		this.respawnTime = 1200;
 
 		this.redScore = 0;
 		this.blueScore = 0;
@@ -356,16 +317,10 @@ var io = require("socket.io")(serv,{
 });
 
 io.sockets.on("connection", function(socket) {
-	updateLog();
-
 	const user = new User(socket.id);
 	users.push(user);
-	
-	updateLog();
 
 	socket.on("disconnect", function() {
-		updateLog();
-
 		if (user.roomID != "") {
 			leaveRoom();
 		}
@@ -378,9 +333,7 @@ io.sockets.on("connection", function(socket) {
 				break;
 			}
 		}
-		users.splice(index, 1);
-
-		updateLog();
+		users.splice(index, 1);	
 	});
 
 
@@ -432,7 +385,7 @@ io.sockets.on("connection", function(socket) {
 			socket.emit("setupRoom", user.id, room.admin.id, room.id);
 			io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);
 
-			updateLog();
+			
 		}
 	});
 
@@ -462,15 +415,17 @@ io.sockets.on("connection", function(socket) {
 				if (rooms[i].id == roomID) {
 					if (rooms[i].isPlaying) {
 						err = "Room is already playing!";
+						break;
 					}
 
 					for (var x = 0; x < rooms[i].users.length; x++) {
 						if (rooms[i].users[x].username == username) {
 							err = "Username already exists in room!";
+							break;
 						}
 					}
 
-					break;
+					err = "";
 				} else {
 					err = "A room doesn't exist with this name!";
 				}
@@ -503,10 +458,8 @@ io.sockets.on("connection", function(socket) {
 			io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);
 
 			if (room.isPlaying == true) {
-				socket.emit("setupGame");
+				socket.emit("setupGame", room.game);
 			}
-
-			updateLog();
 		}
 	});
 
@@ -573,9 +526,7 @@ io.sockets.on("connection", function(socket) {
 				}
 
 				socket.emit("success", "leaveRoom");
-				io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);
-
-				updateLog();
+				io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);		
 			}
 		}
 	}
@@ -629,7 +580,7 @@ io.sockets.on("connection", function(socket) {
 			}
 		}
 
-		io.to(room.id).emit("setupGame");
+		io.to(room.id).emit("setupGame", room.game);
 
 		room.resetPlayers();
 	});
@@ -699,12 +650,7 @@ io.sockets.on("connection", function(socket) {
 							}
 						}
 
-						updateLog();
-
-						//GAME DATA
-						var game = room.game;
-
-						io.to(room.id).emit("update", users, game);
+						io.to(room.id).emit("update", users, room.game.blueScore, room.game.redScore);
 					}
 				} else if (room.isPlaying == false) {
 					room = null;
