@@ -17,7 +17,7 @@ $(document).ready(function() {
     var canvas = document.getElementById("canvas-game");
     var ctx = canvas.getContext("2d");
 
-    ctx.translate(0.5, 0.5);
+    //ctx.translate(0.5, 0.5);
 
     var left = false;
 	var right = false;
@@ -50,6 +50,7 @@ $(document).ready(function() {
 			up: up,
 			down: down,
 		}
+
 		socket.emit("moveKeys", moveKeys);
 	}
 
@@ -76,6 +77,7 @@ $(document).ready(function() {
 			up: up,
 			down: down,
 		}
+		
 		socket.emit("moveKeys", moveKeys);
 	}
 
@@ -135,7 +137,7 @@ $(document).ready(function() {
     		if (players[i].id == adminID) {
     			inner = "@ " + inner;
     		}
-    		$("#players").append("<li>" + inner + "</li>");
+    		$("#players").append("<li class='playerItem'>" + inner + "</li>");
     	}
     	$("#players").append('<div class="clearfix"></div>')
     	$("#player-count").text("Players: " + players.length);

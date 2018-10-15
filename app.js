@@ -104,7 +104,7 @@ class Player {
 		} else if (this.x >= 0 || this.x < 0) {
 			this.zone = "BlueZone";
 		} else {
-			console.log("ERROR");
+			this.zone = null;
 		}
 	}
 
@@ -337,7 +337,6 @@ io.sockets.on("connection", function(socket) {
 		users.splice(index, 1);	
 	});
 
-
 /*
    _____ _____  ______       _______ ______ 
   / ____|  __ \|  ____|   /\|__   __|  ____|
@@ -355,8 +354,15 @@ io.sockets.on("connection", function(socket) {
 		if (username.length <= 0) {
 			err = "One or more inputs empty!";
 		}
+		if (username.length > 16) {
+			err = "16 character limit!";
+		}
+
 		if (roomID.length <= 0) {
 			err = "One or more inputs empty!";
+		}
+		if (roomID.length > 16) {
+			err = "16 character limit!";
 		}
 
 		//Check if the room doesnt exist
@@ -405,8 +411,15 @@ io.sockets.on("connection", function(socket) {
 		if (username.length <= 0) {
 			err = "One or more inputs empty!";
 		}
+		if (username.length > 16) {
+			err = "16 character limit!";
+		}
+
 		if (roomID.length <= 0) {
 			err = "One or more inputs empty!";
+		}
+		if (roomID.length > 16) {
+			err = "16 character limit!";
 		}
 
 		//Check if the room exists
@@ -467,7 +480,8 @@ io.sockets.on("connection", function(socket) {
  |______|______/_/    \_\/   |______|
                                      
 */
-
+	
+	//Put into a function as it is needed to be called from within this script
 	function leaveRoom() {
 		var err = ""
 
@@ -575,6 +589,16 @@ io.sockets.on("connection", function(socket) {
 		room.resetPlayers();
 	});
 
+/*
+  _    _ _____  _____       _______ ______ 
+ | |  | |  __ \|  __ \   /\|__   __|  ____|
+ | |  | | |__) | |  | | /  \  | |  | |__   
+ | |  | |  ___/| |  | |/ /\ \ | |  |  __|  
+ | |__| | |    | |__| / ____ \| |  | |____ 
+  \____/|_|    |_____/_/    \_\_|  |______|
+                                           
+ */
+
 	socket.on("moveKeys", function(moveKeys) {
 		if (user.player != null) {
 			if (room != null) {
@@ -587,16 +611,6 @@ io.sockets.on("connection", function(socket) {
 			}
 		}
 	});
-
-/*
-  _    _ _____  _____       _______ ______ 
- | |  | |  __ \|  __ \   /\|__   __|  ____|
- | |  | | |__) | |  | | /  \  | |  | |__   
- | |  | |  ___/| |  | |/ /\ \ | |  |  __|  
- | |__| | |    | |__| / ____ \| |  | |____ 
-  \____/|_|    |_____/_/    \_\_|  |______|
-                                           
- */
 
 	setInterval(function() {
 		if (user.player != null) {
@@ -648,10 +662,12 @@ io.sockets.on("connection", function(socket) {
 								player.checkPlayerCollisions(room.game, room);
 								player.checkCanvasCollisions(room.game);
 
+								//Temporary object constructed to store necessary player
+								//data for transferal
 								const {x, y, alive, team, flag} = player;
-								var playerdata = {x, y, alive, team, flag, id: room.users[i].id}
+								var playerData = {x, y, alive, team, flag, id: room.users[i].id}
 
-								users.push(playerdata);
+								users.push(playerData);
 							}
 						}
 
