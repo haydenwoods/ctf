@@ -310,6 +310,7 @@ class Game {
                                            
 */
 
+var room = null;
 
 var io = require("socket.io")(serv,{
 	pingTimeout: 2000,
@@ -370,22 +371,21 @@ io.sockets.on("connection", function(socket) {
 		if (err.length > 0) {
 			socket.emit("err", err);
 		} else {
-			var room = new Room(roomID);
-			socket.join(room.id);
+			var newRoom = new Room(roomID);
+			socket.join(newRoom.id);
 
 			user.username = username;
-			user.roomID = room.id;
+			user.roomID = newRoom.id;
 
-			room.users.push(user);
-			room.admin = user;
+			newRoom.users.push(user);
+			newRoom.admin = user;
 
-			rooms.push(room);
+			rooms.push(newRoom);
+			room = rooms.find(x => x.id === roomID);
 
 			socket.emit("success", "createRoom");
 			socket.emit("setupRoom", user.id, room.admin.id, room.id);
-			io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);
-
-			
+			io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);		
 		}
 	});
 
@@ -438,13 +438,7 @@ io.sockets.on("connection", function(socket) {
 		if (err.length > 0) {
 			socket.emit("err", err);
 		} else {
-			var room = null;
-			for (var i = 0; i < rooms.length; i++) {
-				if (rooms[i].id == roomID) {
-					room = rooms[i];
-					break;
-				}
-			}
+			room = rooms.find(x => x.id === roomID);
 
 			socket.join(room.id);
 
@@ -526,7 +520,10 @@ io.sockets.on("connection", function(socket) {
 				}
 
 				socket.emit("success", "leaveRoom");
-				io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);		
+				io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);	
+
+				//Set the room to null
+				room = null;	
 			}
 		}
 	}
@@ -546,13 +543,6 @@ io.sockets.on("connection", function(socket) {
 */
 
 	socket.on("startRoom", function() {
-		var room = null;
-		for (var i = 0; i < rooms.length; i++) {
-			if (rooms[i].id == user.roomID) {
-				room = rooms[i];
-			}
-		}
-
 		room.isPlaying = true;
 		room.game = new Game();
 
@@ -608,9 +598,6 @@ io.sockets.on("connection", function(socket) {
                                            
  */
 
-
-    var room = null;
-
 	setInterval(function() {
 		if (user.player != null) {
 			if (room != null) {
@@ -619,6 +606,20 @@ io.sockets.on("connection", function(socket) {
 
 					if (user.player.alive == true) {
 						var speed = user.player.speed;
+
+						if (user.player.zone != null) {
+							//10% less speed if you are in the other teams zone
+							if (!user.player.zone.includes(user.player.team)) {
+								speed = speed * 0.9;
+							}
+						}
+
+						if (user.player.flag != null) {
+							//10% less speed if you are carrying the flag
+							if (user.player.flag == true) {
+								speed = speed * 0.9;
+							}
+						}
 
 						if (user.player.right) {
 							user.player.vx += speed;
@@ -632,6 +633,11 @@ io.sockets.on("connection", function(socket) {
 						if (user.player.down) {
 							user.player.vy += speed;
 						}
+
+						if (user.id == room.admin.id) {
+							console.log(speed);
+							console.log(user.player.zone);
+						}
 					}
 
 					if (user.id == room.admin.id) {
@@ -639,31 +645,25 @@ io.sockets.on("connection", function(socket) {
 						var users = [];
 
 						for (var i = 0; i < room.users.length; i++) {
-							if (room.users[i].player.alive == true) {
-								room.users[i].player.updatePosition();
-								room.users[i].player.checkZone(room.game);
-								room.users[i].player.checkFlag(room.game, room);
-								room.users[i].player.checkPlayerCollisions(room.game, room);
-								room.users[i].player.checkCanvasCollisions(room.game);
+							var player = room.users[i].player;
+							if (player.alive == true) {
+								player.updatePosition();
+								player.checkZone(room.game);
+								player.checkFlag(room.game, room);
+								player.checkPlayerCollisions(room.game, room);
+								player.checkCanvasCollisions(room.game);
 
-								users.push(room.users[i]);
+								const {x, y, alive, team, flag} = player;
+								var playerdata = {x, y, alive, team, flag, id: room.users[i].id}
+
+								users.push(playerdata);
 							}
 						}
 
 						io.to(room.id).emit("update", users, room.game.blueScore, room.game.redScore);
 					}
-				} else if (room.isPlaying == false) {
-					room = null;
 				}
-			} else {
-				if (rooms.length >= 1) { 
-					for (var i = 0; i < rooms.length; i++) {
-						if (rooms[i].id == user.roomID ) {
-							room = rooms[i];
-						}
-					}
-				}
-			}
+			} 
 		}
 	},1000/100);
 });
