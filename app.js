@@ -633,11 +633,6 @@ io.sockets.on("connection", function(socket) {
 						if (user.player.down) {
 							user.player.vy += speed;
 						}
-
-						if (user.id == room.admin.id) {
-							console.log(speed);
-							console.log(user.player.zone);
-						}
 					}
 
 					if (user.id == room.admin.id) {
