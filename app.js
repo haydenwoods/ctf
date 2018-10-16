@@ -264,7 +264,7 @@ class Game {
 		this.playerHeight = 40;
 		this.playerWidth = 40;
 		this.fontSize = 80;
-		this.wallBounce = 20;
+		this.wallBounce = 14;
 		this.playerBounce = 10;
 
 		this.resetTime = 2000;
@@ -310,8 +310,6 @@ class Game {
                                            
 */
 
-var room = null;
-
 var io = require("socket.io")(serv,{
 	pingTimeout: 2000,
 	pingInterval: 1000,
@@ -320,6 +318,8 @@ var io = require("socket.io")(serv,{
 io.sockets.on("connection", function(socket) {
 	const user = new User(socket.id);
 	users.push(user);
+
+	var room = null;
 
 	socket.on("disconnect", function() {
 		if (user.roomID != "") {
@@ -349,49 +349,51 @@ io.sockets.on("connection", function(socket) {
 
 
 	socket.on("createRoom", function(username, roomID) {
-		var err = "";
+		if (room == null) {
+			var err = "";
 
-		if (username.length <= 0) {
-			err = "One or more inputs empty!";
-		}
-		if (username.length > 16) {
-			err = "16 character limit!";
-		}
-
-		if (roomID.length <= 0) {
-			err = "One or more inputs empty!";
-		}
-		if (roomID.length > 16) {
-			err = "16 character limit!";
-		}
-
-		//Check if the room doesnt exist
-		for (var i = 0; i < rooms.length; i++) {
-			if (rooms[i].id == roomID) {
-				err = "A room already exists with this name!";
-				break;
+			if (username.length <= 0) {
+				err = "One or more inputs empty!";
 			}
-		}
+			if (username.length > 16) {
+				err = "16 character limit!";
+			}
 
-		//Final
-		if (err.length > 0) {
-			socket.emit("err", err);
-		} else {
-			var newRoom = new Room(roomID);
-			socket.join(newRoom.id);
+			if (roomID.length <= 0) {
+				err = "One or more inputs empty!";
+			}
+			if (roomID.length > 16) {
+				err = "16 character limit!";
+			}
 
-			user.username = username;
-			user.roomID = newRoom.id;
+			//Check if the room doesnt exist
+			for (var i = 0; i < rooms.length; i++) {
+				if (rooms[i].id == roomID) {
+					err = "A room already exists with this name!";
+					break;
+				}
+			}
 
-			newRoom.users.push(user);
-			newRoom.admin = user;
+			//Final
+			if (err.length > 0) {
+				socket.emit("err", err);
+			} else {
+				var newRoom = new Room(roomID);
+				socket.join(newRoom.id);
 
-			rooms.push(newRoom);
-			room = rooms.find(x => x.id === roomID);
+				user.username = username;
+				user.roomID = newRoom.id;
 
-			socket.emit("success", "createRoom");
-			socket.emit("setupRoom", user.id, room.admin.id, room.id);
-			io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);		
+				newRoom.users.push(user);
+				newRoom.admin = user;
+
+				rooms.push(newRoom);
+				room = rooms.find(obj => obj.id == roomID);
+
+				socket.emit("success", "createRoom");
+				socket.emit("setupRoom", room.admin.id, room.id);
+				io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);	
+			}
 		}
 	});
 
@@ -406,68 +408,70 @@ io.sockets.on("connection", function(socket) {
 */
 
 	socket.on("joinRoom", function(username, roomID) {
-		var err = "";
+		if (room == null) {
+			var err = "";
 
-		if (username.length <= 0) {
-			err = "One or more inputs empty!";
-		}
-		if (username.length > 16) {
-			err = "16 character limit!";
-		}
+			if (username.length <= 0) {
+				err = "One or more inputs empty!";
+			}
+			if (username.length > 16) {
+				err = "16 character limit!";
+			}
 
-		if (roomID.length <= 0) {
-			err = "One or more inputs empty!";
-		}
-		if (roomID.length > 16) {
-			err = "16 character limit!";
-		}
+			if (roomID.length <= 0) {
+				err = "One or more inputs empty!";
+			}
+			if (roomID.length > 16) {
+				err = "16 character limit!";
+			}
 
-		//Check if the room exists
-		if (rooms.length > 0) {
-			for (var i = 0; i < rooms.length; i++) {
-				if (rooms[i].id == roomID) {
-					if (rooms[i].isPlaying) {
-						err = "Room is already playing!";
-						break;
-					}
-
-					for (var x = 0; x < rooms[i].users.length; x++) {
-						if (rooms[i].users[x].username == username) {
-							err = "Username already exists in room!";
+			//Check if the room exists
+			if (rooms.length > 0) {
+				for (var i = 0; i < rooms.length; i++) {
+					if (rooms[i].id == roomID) {
+						if (rooms[i].isPlaying) {
+							err = "Room is already playing!";
 							break;
 						}
-					}
 
-					err = "";
-				} else {
-					err = "A room doesn't exist with this name!";
+						for (var x = 0; x < rooms[i].users.length; x++) {
+							if (rooms[i].users[x].username == username) {
+								err = "Username already exists in room!";
+								break;
+							}
+						}
+
+						err = "";
+					} else {
+						err = "A room doesn't exist with this name!";
+					}
+				}
+			} else if (rooms.length <= 0){
+				err = "A room doesn't exist with this name!";
+			}
+
+			//Final
+			if (err.length > 0) {
+				socket.emit("err", err);
+			} else {
+				room = rooms.find(x => x.id === roomID);
+
+				socket.join(room.id);
+
+				user.username = username;
+				user.roomID = room.id;
+
+				room.users.push(user);
+
+				socket.emit("success", "joinRoom");
+				socket.emit("setupRoom", room.admin.id, room.id);
+				io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);
+
+				if (room.isPlaying == true) {
+					socket.emit("setupGame", room.game);
 				}
 			}
-		} else if (rooms.length <= 0){
-			err = "A room doesn't exist with this name!";
-		}
-
-		//Final
-		if (err.length > 0) {
-			socket.emit("err", err);
-		} else {
-			room = rooms.find(x => x.id === roomID);
-
-			socket.join(room.id);
-
-			user.username = username;
-			user.roomID = room.id;
-
-			room.users.push(user);
-
-			socket.emit("success", "joinRoom");
-			socket.emit("setupRoom", user.id, room.admin.id, room.id);
-			io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);
-
-			if (room.isPlaying == true) {
-				socket.emit("setupGame", room.game);
-			}
-		}
+		}	
 	});
 
 
@@ -482,67 +486,69 @@ io.sockets.on("connection", function(socket) {
 */
 	
 	//Put into a function as it is needed to be called from within this script
-	function leaveRoom() {
-		var err = ""
+	function leaveRoom(room) {
+		if (room != null) {
+			var err = ""
 
-		if (err.length > 0) {
-			socket.emit("err", err);
-		} else {
-			if (rooms.length > 0) {
-				//Find the room
-				var room = null;
-				for (var i = 0; i < rooms.length; i++) {
-					if (rooms[i].id == user.roomID) {
-						room = rooms[i];
-						break;
-					}
-				}
-
-				socket.leave(room.id);
-
-				//Set the users room to empty
-				user.roomID = "";
-
-				//Set the player back to null
-				user.player = null;
-
-				//Remove player at index
-				var index = null;
-				for (var i = 0; i < room.users.length; i++) {
-					if (room.users[i].id == user.id) {
-						index = i;
-					}
-				}
-				room.users.splice(index, 1);
-
-				//Check if the player leaving resulted in an empty room
-				if (room.users.length > 0) {
-					//Check if the player who left was admin and assign a new random one
-					if (user.id == room.admin.id) {
-						var random = getRandomInt(0, room.users.length-1);
-						room.admin = room.users[random];
-
-						socket.broadcast.to(room.admin.id).emit("setupRoom", room.admin.id, room.admin.id);
-					}
-				} else if (room.users.length <= 0){
+			if (err.length > 0) {
+				socket.emit("err", err);
+			} else {
+				if (rooms.length > 0) {
+					//Find the room
+					var room = null;
 					for (var i = 0; i < rooms.length; i++) {
-						if (rooms[i].id == room.id) {
+						if (rooms[i].id == user.roomID) {
+							room = rooms[i];
+							break;
+						}
+					}
+
+					socket.leave(room.id);
+
+					//Set the users room to empty
+					user.roomID = "";
+
+					//Set the player back to null
+					user.player = null;
+
+					//Remove player at index
+					var index = null;
+					for (var i = 0; i < room.users.length; i++) {
+						if (room.users[i].id == user.id) {
 							index = i;
 						}
 					}
-					rooms.splice(index, 1);
+					room.users.splice(index, 1);
+
+					//Check if the player leaving resulted in an empty room
+					if (room.users.length > 0) {
+						//Check if the player who left was admin and assign a new random one
+						if (user.id == room.admin.id) {
+							var random = getRandomInt(0, room.users.length-1);
+							room.admin = room.users[random];
+
+							socket.broadcast.to(room.admin.id).emit("setupRoom", room.admin.id, room.admin.id);
+						}
+					} else if (room.users.length <= 0){
+						for (var i = 0; i < rooms.length; i++) {
+							if (rooms[i].id == room.id) {
+								index = i;
+							}
+						}
+						rooms.splice(index, 1);
+					}
+
+					socket.emit("success", "leaveRoom");
+					io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);	
+
+					//Set the room to null
+					return null;	
 				}
-
-				socket.emit("success", "leaveRoom");
-				io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);	
-
-				//Set the room to null
-				room = null;	
 			}
 		}
 	}
 	socket.on("leaveRoom", function() {
-		leaveRoom();
+		room = leaveRoom(room);
 	});	
 
 

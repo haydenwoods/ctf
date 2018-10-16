@@ -1,3 +1,9 @@
+var colors = ["#1abc9c", "#16a085", "#2ecc71", "#27ae60", "#3498db", "#2980b9", "#9b59b6", "#8e44ad", "#f1c40f", "#f39c12", "#e67e22", "#d35400", "#e74c3c", "#c0392b"];
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 function toggleScreen(screenName) {
 	$("#container").show();
 	$(".screen").each(function(i) {
@@ -5,6 +11,13 @@ function toggleScreen(screenName) {
 	});
 	$("#" + screenName).show();
 }
+
+function setTheme() {
+	var random = getRandomInt(0, colors.length);
+	$(document.body).css("--accent-color", colors[random]);
+}
+
+setTheme();
 
 $(document).ready(function() {
 	toggleScreen("menu");
@@ -144,9 +157,9 @@ $(document).ready(function() {
     });	
 
     //Set up the room according to whether they are an admin or not
-    socket.on("setupRoom", function(localID, adminID, roomName) {
+    socket.on("setupRoom", function(adminID, roomName) {
     	$("#menu-container h2").text(roomName);
-       	if (localID == adminID) {
+       	if (socket.id == adminID) {
 			$("#button-start").show();    	
     	} else {
     		$("#button-start").hide()
@@ -222,6 +235,13 @@ $(document).ready(function() {
 		ctx.stroke();
 		ctx.fillRect(canvas.width-zoneWidth,0,zoneWidth,canvas.height);
 
+		ctx.font = fontSize + "px sans-serif";
+		ctx.fillStyle = "#4cd137";
+		ctx.textAlign = "right"; 
+		ctx.fillText(blueScore + "  ", canvas.width/2, 80 * ratio);
+		ctx.textAlign = "left";
+		ctx.fillText("  " + redScore, canvas.width/2, 80 * ratio);
+
     	for (var i = 0; i < users.length; i++) {
     		var player = users[i];
  
@@ -247,12 +267,5 @@ $(document).ready(function() {
 	    		}
 	    	}
     	}
-
-    	ctx.font = fontSize + "px sans-serif";
-		ctx.fillStyle = "#4cd137";
-		ctx.textAlign = "right"; 
-		ctx.fillText(blueScore + "  ", canvas.width/2, 80 * ratio);
-		ctx.textAlign = "left";
-		ctx.fillText("  " + redScore, canvas.width/2, 80 * ratio);
     });    
 });
