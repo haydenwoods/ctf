@@ -322,7 +322,7 @@ io.sockets.on("connection", function(socket) {
 	var room = null;
 
 	socket.on("disconnect", function() {
-		leaveRoom(user, room, socket);
+		leaveRoom(user, room);
 		room = null;
 
 		//Find users index in user array and remove from array
@@ -483,7 +483,7 @@ io.sockets.on("connection", function(socket) {
 */
 	
 	//Put into a function as it is needed to be called from within this script
-	function leaveRoom(user, room, socket) {
+	function leaveRoom(user, room) {
 		if (room != null) {
 			socket.leave(room.id);
 			user.player = null;
@@ -511,7 +511,7 @@ io.sockets.on("connection", function(socket) {
 		}
 	}
 	socket.on("leaveRoom", function() {
-		leaveRoom(user, room, socket);
+		leaveRoom(user, room);
 		room = null;
 	});	
 

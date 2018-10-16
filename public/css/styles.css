@@ -91,7 +91,7 @@ a {
 }
 
 #top-line {
-	height: 4px;
+	height: 6px;
 	width: 100%;
 	background: var(--accent-color);
 	position: absolute;
@@ -151,7 +151,7 @@ a {
 	color: var(--accent-color);
 	font-weight: 300;
 	text-align: center;
-	padding-top: 5px;
+	padding-top: 10px;
 	opacity: 0.9;
 }
 #menu-container h3 a {
