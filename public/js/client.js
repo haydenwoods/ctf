@@ -25,6 +25,8 @@ $(document).ready(function() {
 	$("#input-username").focus();
 	$("#input-username").select();
 
+	$("#input-username").val(Cookies.get('username'));
+
     const socket = io();
 
     var canvas = document.getElementById("canvas-game");
@@ -126,7 +128,7 @@ $(document).ready(function() {
     });
 
     //When there is success on joining/creating/leaving
-    socket.on("success", function(type) {
+    socket.on("success", function(type, username = null) {
     	$("#error").text("");
     	switch(type) {
 		    case "createRoom":
@@ -139,6 +141,10 @@ $(document).ready(function() {
 		    	toggleScreen("menu");
 		    	$("#menu-container h2").text("Capture The Flag")
 		    	break;
+		}
+
+		if (username != null) {
+			Cookies.set('username', username);
 		}
     });	
 

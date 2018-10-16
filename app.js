@@ -390,7 +390,7 @@ io.sockets.on("connection", function(socket) {
 				rooms.push(newRoom);
 				room = rooms.find(obj => obj.id == roomID);
 
-				socket.emit("success", "createRoom");
+				socket.emit("success", "createRoom", username);
 				socket.emit("setupRoom", room.admin.id, room.id);
 				io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);	
 			}
@@ -463,7 +463,7 @@ io.sockets.on("connection", function(socket) {
 
 				room.users.push(user);
 
-				socket.emit("success", "joinRoom");
+				socket.emit("success", "joinRoom", username);
 				socket.emit("setupRoom", room.admin.id, room.id);
 				io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);
 
