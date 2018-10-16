@@ -165,6 +165,8 @@ $(document).ready(function() {
     //Set up the room according to whether they are an admin or not
     socket.on("setupRoom", function(adminID, roomName) {
     	$("#menu-container h2").text(roomName);
+    	console.log(socket.id);
+    	console.log(adminID);
        	if (socket.id == adminID) {
 			$("#button-start").show();    	
     	} else {

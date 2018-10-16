@@ -48,8 +48,8 @@ var users = [];
 class User {
 	constructor(id) {
 		this.id = id; //Same as the socketID
-		this.username = "";
-		this.roomID = "";
+		this.username = null;
+		this.roomID = null;
 		this.player = null;
 	}
 }
@@ -322,9 +322,8 @@ io.sockets.on("connection", function(socket) {
 	var room = null;
 
 	socket.on("disconnect", function() {
-		if (user.roomID != "") {
-			leaveRoom();
-		}
+		leaveRoom(user, room, socket);
+		room = null;
 
 		//Find users index in user array and remove from array
 		var index = 0;
@@ -382,7 +381,6 @@ io.sockets.on("connection", function(socket) {
 				socket.join(newRoom.id);
 
 				user.username = username;
-				user.roomID = newRoom.id;
 
 				newRoom.users.push(user);
 				newRoom.admin = user;
@@ -459,7 +457,6 @@ io.sockets.on("connection", function(socket) {
 				socket.join(room.id);
 
 				user.username = username;
-				user.roomID = room.id;
 
 				room.users.push(user);
 
@@ -486,69 +483,36 @@ io.sockets.on("connection", function(socket) {
 */
 	
 	//Put into a function as it is needed to be called from within this script
-	function leaveRoom(room) {
+	function leaveRoom(user, room, socket) {
 		if (room != null) {
-			var err = ""
+			socket.leave(room.id);
+			user.player = null;
 
-			if (err.length > 0) {
-				socket.emit("err", err);
-			} else {
-				if (rooms.length > 0) {
-					//Find the room
-					var room = null;
-					for (var i = 0; i < rooms.length; i++) {
-						if (rooms[i].id == user.roomID) {
-							room = rooms[i];
-							break;
-						}
-					}
+			//Remove user from room
+			room.users = room.users.filter(obj => obj.id != user.id);
 
-					socket.leave(room.id);
+			//Reassign admin if the admin was the one who left
+			if (user.id == room.admin.id) {
+				room.admin = room.users[getRandomInt(0, room.users.length-1)];
+			}
+			
+			//If room is empty
+			if (room.users.length <= 0) {
+				//Destroy room
+				rooms = rooms.filter(obj => obj.id != room.id);
+			}
 
-					//Set the users room to empty
-					user.roomID = "";
+			socket.emit("success", "leaveRoom");
 
-					//Set the player back to null
-					user.player = null;
-
-					//Remove player at index
-					var index = null;
-					for (var i = 0; i < room.users.length; i++) {
-						if (room.users[i].id == user.id) {
-							index = i;
-						}
-					}
-					room.users.splice(index, 1);
-
-					//Check if the player leaving resulted in an empty room
-					if (room.users.length > 0) {
-						//Check if the player who left was admin and assign a new random one
-						if (user.id == room.admin.id) {
-							var random = getRandomInt(0, room.users.length-1);
-							room.admin = room.users[random];
-
-							socket.broadcast.to(room.admin.id).emit("setupRoom", room.admin.id, room.admin.id);
-						}
-					} else if (room.users.length <= 0){
-						for (var i = 0; i < rooms.length; i++) {
-							if (rooms[i].id == room.id) {
-								index = i;
-							}
-						}
-						rooms.splice(index, 1);
-					}
-
-					socket.emit("success", "leaveRoom");
-					io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);	
-
-					//Set the room to null
-					return null;	
-				}
+			if (room.users.length > 0) {
+				io.to(room.id).emit("setupRoom", room.admin.id, room.id);
+				io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);
 			}
 		}
 	}
 	socket.on("leaveRoom", function() {
-		room = leaveRoom(room);
+		leaveRoom(user, room, socket);
+		room = null;
 	});	
 
 
