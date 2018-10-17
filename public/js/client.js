@@ -1,5 +1,18 @@
 var colors = ["#1abc9c", "#16a085", "#2ecc71", "#27ae60", "#3498db", "#2980b9", "#9b59b6", "#8e44ad", "#f1c40f", "#f39c12", "#e67e22", "#d35400", "#e74c3c", "#c0392b"];
 
+function hexToRGBA(hex, a=1){
+    var c;
+    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+        c= hex.substring(1).split('');
+        if(c.length== 3){
+            c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c= '0x'+c.join('');
+        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+a+')';
+    }
+    console.log(hex);
+}
+
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -13,8 +26,9 @@ function toggleScreen(screenName) {
 }
 
 function setTheme() {
-	var random = getRandomInt(0, colors.length);
-	$(document.body).css("--accent-color", colors[random]);
+	var random = getRandomInt(0, colors.length-1);
+	$(document.body).css("--accent-color", hexToRGBA(colors[random]));
+	$(document.body).css("--accent-lighter-color", hexToRGBA(colors[random], 0.5));
 }
 
 setTheme();
@@ -154,7 +168,7 @@ $(document).ready(function() {
     	for (var i = 0; i < players.length; i++) {
    			var inner = players[i].username;
     		if (players[i].id == adminID) {
-    			inner = "@ " + inner;
+    			inner = "<i class='fas fa-crown icon'></i>" + inner;
     		}
     		$("#players").append("<li class='playerItem'>" + inner + "</li>");
     	}

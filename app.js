@@ -308,7 +308,7 @@ class Game {
   ____) | |__| | |____| . \| |____   | |   
  |_____/ \____/ \_____|_|\_\______|  |_|   
                                            
-*/
+*/	
 
 var io = require("socket.io")(serv,{
 	pingTimeout: 2000,

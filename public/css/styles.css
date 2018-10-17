@@ -1,5 +1,6 @@
 :root {
     --accent-color: #4cd137;
+    --accent-lighter-color: #46bf33;
     --secondary-color: #fff;
 }
 
@@ -90,10 +91,19 @@ a {
 	clear: both;
 }
 
+.icon {
+	font-size: 14px;
+	padding-right: 6px;
+	vertical-align: middle;
+}
+
 #top-line {
 	height: 6px;
 	width: 100%;
-	background: var(--accent-color);
+	background: #1e5799; /* Old browsers */
+	background: -moz-linear-gradient(left, var(--accent-color) 0%, var(--accent-lighter-color) 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(left, var(--accent-color) 0%, var(--accent-lighter-color) 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to right, var(--accent-color) 0%, var(--accent-lighter-color) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 	position: absolute;
 	top: 0;
 }

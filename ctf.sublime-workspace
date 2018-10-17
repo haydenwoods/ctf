@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"user",
+				"username"
+			],
+			[
 				"ine",
 				"inline-block\tdisplay"
 			],
@@ -43,7 +47,7 @@
 			"file": "app.js",
 			"settings":
 			{
-				"buffer_size": 14990,
+				"buffer_size": 15683,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -52,7 +56,7 @@
 			"file": "public/js/client.js",
 			"settings":
 			{
-				"buffer_size": 5939,
+				"buffer_size": 7005,
 				"line_ending": "Unix"
 			}
 		},
@@ -60,7 +64,7 @@
 			"file": "public/css/styles.css",
 			"settings":
 			{
-				"buffer_size": 4748,
+				"buffer_size": 4982,
 				"line_ending": "Unix"
 			}
 		},
@@ -68,7 +72,7 @@
 			"file": "client/index.html",
 			"settings":
 			{
-				"buffer_size": 1765,
+				"buffer_size": 1977,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -173,15 +177,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 14990,
+						"buffer_size": 15683,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								14463,
-								14463
+								814,
+								814
 							]
 						],
 						"settings":
@@ -190,7 +194,7 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 11182.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -202,15 +206,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5939,
+						"buffer_size": 7005,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								419,
-								419
+								0,
+								0
 							]
 						],
 						"settings":
@@ -230,7 +234,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4748,
+						"buffer_size": 4982,
 						"regions":
 						{
 						},
@@ -259,7 +263,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1765,
+						"buffer_size": 1977,
 						"regions":
 						{
 						},
