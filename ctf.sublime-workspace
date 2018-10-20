@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"ac",
+				"accent-color"
+			],
+			[
+				"hex",
+				"hexToRGBA"
+			],
+			[
 				"user",
 				"username"
 			],
@@ -47,7 +55,7 @@
 			"file": "app.js",
 			"settings":
 			{
-				"buffer_size": 15683,
+				"buffer_size": 15281,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -56,7 +64,8 @@
 			"file": "public/js/client.js",
 			"settings":
 			{
-				"buffer_size": 7005,
+				"buffer_size": 7481,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
@@ -64,7 +73,8 @@
 			"file": "public/css/styles.css",
 			"settings":
 			{
-				"buffer_size": 4982,
+				"buffer_size": 5500,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
@@ -72,7 +82,7 @@
 			"file": "client/index.html",
 			"settings":
 			{
-				"buffer_size": 1977,
+				"buffer_size": 2197,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -130,6 +140,7 @@
 	],
 	"file_history":
 	[
+		"/Users/haydenwoods/Documents/Development/NodeJS/CTF/app.js",
 		"/Users/haydenwoods/Documents/Development/NodeJS/CTF/ctf.sublime-project",
 		"/Users/haydenwoods/Documents/Development/Python/known.txt",
 		"/Users/haydenwoods/Documents/Development/Python/knownPlaintext.py"
@@ -177,24 +188,24 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 15683,
+						"buffer_size": 15281,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								814,
-								814
+								6180,
+								6180
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"syntax": "Packages/Babel/JavaScript (Babel).sublime-syntax",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 10732.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -206,15 +217,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7005,
+						"buffer_size": 7481,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								4702,
+								4702
 							]
 						],
 						"settings":
@@ -222,7 +233,7 @@
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 3316.0,
+						"translation.y": 2550.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
@@ -234,15 +245,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4982,
+						"buffer_size": 5500,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								3112,
+								3112
 							]
 						],
 						"settings":
@@ -250,11 +261,11 @@
 							"syntax": "Packages/CSS/CSS.sublime-syntax",
 							"translate_tabs_to_spaces": false
 						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.x": 3.0,
+						"translation.y": 1973.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
@@ -263,27 +274,28 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1977,
+						"buffer_size": 2197,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								1956,
+								1619
 							]
 						],
 						"settings":
 						{
 							"syntax": "Packages/HTML/HTML.sublime-syntax",
-							"translate_tabs_to_spaces": false
+							"translate_tabs_to_spaces": false,
+							"word_wrap": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 231.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 3,
 					"type": "text"
 				}
 			]

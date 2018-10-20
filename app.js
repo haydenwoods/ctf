@@ -326,14 +326,7 @@ io.sockets.on("connection", function(socket) {
 		room = null;
 
 		//Find users index in user array and remove from array
-		var index = 0;
-		for (var i = 0; i < users.length; i++) {
-			if (users[i].id == socket.id) {
-				index = i;
-				break;
-			}
-		}
-		users.splice(index, 1);	
+		users = users.filter(obj => obj.id != user.id);	
 	});
 
 /*
@@ -375,7 +368,7 @@ io.sockets.on("connection", function(socket) {
 
 			//Final
 			if (err.length > 0) {
-				socket.emit("err", err);
+				socket.emit( "err", err);
 			} else {
 				var newRoom = new Room(roomID);
 				socket.join(newRoom.id);
@@ -392,7 +385,7 @@ io.sockets.on("connection", function(socket) {
 				socket.emit("setupRoom", room.admin.id, room.id);
 				io.to(room.id).emit("connectedPlayers", room.users, room.admin.id);	
 			}
-		}
+		}s
 	});
 
 /*
@@ -493,7 +486,7 @@ io.sockets.on("connection", function(socket) {
 
 			//Reassign admin if the admin was the one who left
 			if (user.id == room.admin.id) {
-				room.admin = room.users[getRandomInt(0, room.users.length-1)];
+				r
 			}
 			
 			//If room is empty

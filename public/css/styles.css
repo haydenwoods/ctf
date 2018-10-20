@@ -146,23 +146,23 @@ a {
 	font-family: "Roboto", sans-serif;
 	color: var(--accent-color);
 	text-align: center;
-	font-weight: 300;
+	font-weight: 400;
 }
 #menu-container h2 {
 	font-size: 26px;
 	font-family: "Raleway", sans-serif;
 	color: var(--accent-color);
 	text-align: center;
-	font-weight: 300;
+	font-weight: 400;
 }
 #menu-container h3 {
 	font-size: 16px;
 	font-family: "Raleway", sans-serif;
 	color: var(--accent-color);
-	font-weight: 300;
+	font-weight: 400;
 	text-align: center;
 	padding-top: 10px;
-	opacity: 0.9;
+	opacity: 0.8;
 }
 #menu-container h3 a {
 	color: var(--accent-color);
